@@ -1,0 +1,11 @@
+.main-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.statistic-container {
+  display: flex;
+  flex-grow: 1;
+  background: gray;
+}

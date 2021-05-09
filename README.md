@@ -1,10 +1,12 @@
 # Names
 Smart App Canvas
 
-Перед использованием установите пакеты:
+Установите необходимые зависимости из раздела dependencies в package.json
 
 $ npm install --save react react-dom
 $ npm install --save styled-components
 $ npm install --save @sberdevices/plasma-ui @sberdevices/plasma-tokens @sberdevices/plasma-icons
 
-А так же другие из списка dependencies в package.json
+Добавьте файл с названием ".env":
+	REACT_APP_TOKEN=*токен из личного кабинета Smart APp Studio* 
+	REACT_APP_SMARTAPP=*Название Smart App'а*
