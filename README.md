@@ -8,5 +8,5 @@ $ npm install --save styled-components
 $ npm install --save @sberdevices/plasma-ui @sberdevices/plasma-tokens @sberdevices/plasma-icons
 
 Добавьте файл с названием ".env":
-	REACT_APP_TOKEN=*токен из личного кабинета Smart APp Studio* 
+	REACT_APP_TOKEN=*токен из личного кабинета Smart App Studio* 
 	REACT_APP_SMARTAPP=*Название Smart App'а*
