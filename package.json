@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@sberdevices/assistant-client": "^1.0.5",
+    "@sberdevices/assistant-client": "^2.14.0",
     "@sberdevices/plasma-icons": "^1.4.0",
     "@sberdevices/plasma-tokens": "^1.1.0",
     "@sberdevices/plasma-ui": "^1.6.2",
@@ -14,6 +14,7 @@
     "@types/node": "^12.19.2",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
+    "axios": "^0.19.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-native": "^0.64.0",

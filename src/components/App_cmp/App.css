@@ -6,6 +6,7 @@
 
 .statistic-container {
   display: flex;
-  flex-grow: 1;
-  background: gray;
+  flex-direction: column;
+  width: calc(50% - 10px);
+  border-radius: 17px;
 }

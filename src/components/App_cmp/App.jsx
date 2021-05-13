@@ -3,9 +3,19 @@ import {
   createSmartappDebugger,
   createAssistant,
 } from "@sberdevices/assistant-client";
+import { createGlobalStyle } from 'styled-components';
+import { darkJoy, darkEva, darkSber } from '@sberdevices/plasma-tokens/themes'; 
+import {text, background, gradient} from '@sberdevices/plasma-tokens';
+import { DeviceThemeProvider } from '@sberdevices/plasma-ui/components/Device';
 import "./App.css";
 import Chat from "../Chat_cmp/Chat";
+import Statistic from "../Statistic_cmp/Statistic";
 import messages from "../../service/messages";
+import axios from 'axios';
+
+const ThemeBackgroundEva = createGlobalStyle(darkEva);
+const ThemeBackgroundSber = createGlobalStyle(darkSber);
+const ThemeBackgroundJoy = createGlobalStyle(darkJoy);
 
 const initializeAssistant = (getState) => {
   if (process.env.NODE_ENV === "development") {
@@ -18,14 +28,25 @@ const initializeAssistant = (getState) => {
   return createAssistant({ getState });
 };
 
-let newName = "";
+const DocStyle = createGlobalStyle`
+    html:root {
+        min-height: 100vh;
+        color: ${text};
+        background-color: ${background};
+        background-image: ${gradient};
+    }
+`;
+
+let newName = ""; //имя, сказанное голосом ассистенту
 
 export class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      messages: messages,
+      messages: messages, //сказанные имена
+      nameCount: 0, //количество сказанных имен
+      character: "sber", //текущий персонаж
     };
 
     this.assistant = initializeAssistant(() => this.getStateForAssistant());
@@ -33,7 +54,13 @@ export class App extends React.Component {
       console.log(`assistant.on(start)`, event);
     });
     this.assistant.on("data", (event) => {
-      console.log(`assistant.on(data)`, event);
+      if(event.type === 'character') {
+            this.setState({
+              messages: messages,
+              nameCount: this.state.nameCount,
+              character: event.character.id,  
+            });
+      }
       const { action } = event;
       this.dispatchAssistantAction(action);
     });
@@ -53,13 +80,21 @@ export class App extends React.Component {
     return state;
   }
 
+  send = (url) => {
+    axios.get(url).then(res => 
+      res.data !== null 
+      ? this.sayName(res.data) 
+      : alert("Такого имени нет"));
+  }
+
   dispatchAssistantAction(action) {
     console.log("dispatchAssistantAction", action);
     if (action) {
       switch (action.type) {
         case "add_name":
           newName = action.data;
-          this.setState({messages: this.state.messages})
+          console.log(`newName: ${newName}`);
+          this.setState(this.state)
           break;
         default:
           throw new Error();
@@ -67,12 +102,38 @@ export class App extends React.Component {
     }
   }
 
+  updateCount = () => {
+    this.setState({
+      messages: this.state.messages,
+      nameCount: this.state.nameCount + 1,
+      character: this.state.character,
+    })
+  }
+
   render() {
     return (
-      <div className="main-container">
-        <Chat newname={newName}/>
-        <div className="statistic-container"></div>
+      <DeviceThemeProvider>
+        <DocStyle/>
+        {(() => {
+                  switch (this.state.character) {
+                      case 'sber':
+                          return <ThemeBackgroundSber />;
+                      case 'eva':
+                          return <ThemeBackgroundEva />;
+                      case 'joy':
+                          return <ThemeBackgroundJoy />;
+                      default:
+                          return; 
+                  }
+              })()}
+      <div className="main-container" >
+        <Chat newname={newName} updateCount={this.updateCount} assistant={this.assistant}/>
+        <div className="statistic-container">
+          <Statistic count={this.state.nameCount}/>
+        </div>
       </div>
+      </DeviceThemeProvider>
     );
   }
 }
+

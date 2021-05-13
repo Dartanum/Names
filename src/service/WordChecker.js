@@ -5,18 +5,15 @@ function isCorrect(current_name, names) {
   let lastSym;
   //если введено короткое имя
   if (current_name.length <= 1) {
-    alert("Слишком короткое имя");
-    return false;
+    return 1;
   }
   //если сообщение состоит из более чем 1 слова
   if (current_name.includes(" ")) {
-    alert("Вы ввели несколько слов");
-    return false;
+    return 2;
   }
   //Проверка на кириллицу
   if (!inCyrillic(current_name)) {
-    alert("Допустимы только буквы кириллицы");
-    return false;
+    return 3;
   }
   //если это слово не первое
   if (temp.length !== 0) {
@@ -24,15 +21,13 @@ function isCorrect(current_name, names) {
     //проход по символам последнего сыгранного имени с конца для определения буквы, с которой должно начинаться текущее имя
     lastSym = getStartSymbol(lastMsg);
     if (current_name[0] !== lastSym) {
-      alert(`Имя должно начинаться с буквы "${lastSym}"`);
-      return false;
+      return lastSym;
     }
     if(isExist(current_name, temp)) {
-      alert("Это имя уже было сыграно")
-      return false;
+      return 4;
     }
   } 
-  return true;
+  return 0;
 }
 
 function getStartSymbol(msg) {

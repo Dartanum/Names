@@ -4,14 +4,11 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import { App } from "./components/App_cmp/App";
 import reportWebVitals from "./reportWebVitals";
-import { DeviceThemeProvider } from '@sberdevices/plasma-ui/components/Device'; // Типографика, имеющая размеры, зависимые от типа устройства
-import { GlobalStyle } from './GlobalStyle'; // Тема оформления (цветовая схема)
+//import { DeviceThemeProvider } from '@sberdevices/plasma-ui/components/Device';
+//import { GlobalStyle } from './GlobalStyle'; 
 
 ReactDOM.render(
-  <DeviceThemeProvider>
-        <GlobalStyle />
-        <App />
-    </DeviceThemeProvider>,
+        <App />,
   document.getElementById("root")
 );
 
