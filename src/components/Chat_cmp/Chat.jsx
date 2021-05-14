@@ -4,7 +4,6 @@ import checker from "../../service/WordChecker";
 import { TextField, ActionButton } from "@sberdevices/plasma-ui";
 import { IconMessage } from "@sberdevices/plasma-icons";
 import "./Chat.css";
-import messages from "../../service/messages";
 
 let clicked = false;
 
@@ -13,7 +12,6 @@ export default class Chat extends React.Component {
     super(props);
     this.tfRef = React.createRef();
     this.state = {
-      messages: messages,
       textName: "",
     };
   }
@@ -34,6 +32,8 @@ export default class Chat extends React.Component {
       clicked = true;
       return true;
     }
+    if(this.props.messages !== nextProps.messages)
+      return true;
     if (this.state !== nextState) return true;
     return false;
   }
@@ -48,7 +48,7 @@ export default class Chat extends React.Component {
   sayName = (msg) => {
     msg = this.toNameFormat(msg);
     console.log(msg);
-    let temp = this.state.messages;
+    let temp = this.props.messages;
     let fromWho;
     if (temp.length !== 0) {
       fromWho =
@@ -61,7 +61,6 @@ export default class Chat extends React.Component {
         this.props.updateCount();
       }
       this.setState({
-        messages: temp,
         textName: this.tfRef.current.value,
       });
       return;
@@ -97,7 +96,7 @@ export default class Chat extends React.Component {
   };
 
   render() {
-    let messageList = this.state.messages.map((msg, index) => (
+    let messageList = this.props.messages.map((msg, index) => (
       <Message key={index} name={msg.name} from={msg.from} />
     ));
     return (
@@ -113,7 +112,6 @@ export default class Chat extends React.Component {
           label="Введите имя"
           onChange={(v) =>
             this.setState({
-              messages: this.state.messages,
               textName: v.target.value,
             })
           }

@@ -10,7 +10,7 @@ import { DeviceThemeProvider } from '@sberdevices/plasma-ui/components/Device';
 import "./App.css";
 import Chat from "../Chat_cmp/Chat";
 import Statistic from "../Statistic_cmp/Statistic";
-import messages from "../../service/messages";
+import { EndGame } from "../EndGame_cmp/EndGame"
 import axios from 'axios';
 
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
@@ -44,9 +44,12 @@ export class App extends React.Component {
     super(props);
 
     this.state = {
-      messages: messages, //сказанные имена
+      messages: [], //сказанные имена
       nameCount: 0, //количество сказанных имен
       character: "sber", //текущий персонаж
+      isEndGame: false, //обновляется, когда игра заканчивается
+      restarted: false, //изменяется, когда нужен рестарт игры
+      timerUpdate: false, //изменяется когда надо обновить таймер
     };
 
     this.assistant = initializeAssistant(() => this.getStateForAssistant());
@@ -56,9 +59,12 @@ export class App extends React.Component {
     this.assistant.on("data", (event) => {
       if(event.type === 'character') {
             this.setState({
-              messages: messages,
+              messages: this.state.messages,
               nameCount: this.state.nameCount,
-              character: event.character.id,  
+              character: event.character.id, 
+              isEndGame: this.state.isEndGame,
+              restarted: this.state.restarted, 
+              timerUpdate: this.state.timerUpdate,
             });
       }
       const { action } = event;
@@ -107,6 +113,32 @@ export class App extends React.Component {
       messages: this.state.messages,
       nameCount: this.state.nameCount + 1,
       character: this.state.character,
+      isEndGame: this.state.isEndGame,
+      restarted: this.state.restarted, 
+      timerUpdate: !this.state.timerUpdate,
+    })
+    console.log(`count name: ${this.state.nameCount}`)
+  }
+
+  endGame = () => {
+    this.setState({
+      messages: this.state.messages,
+      nameCount: this.state.nameCount,
+      character: this.state.character,
+      isEndGame: true,
+      restarted: this.state.restarted, 
+      timerUpdate: this.state.timerUpdate,
+    })
+  }
+
+  restart = () => {
+    this.setState({
+      messages: [], 
+      nameCount: 0, 
+      character: this.state.character, 
+      isEndGame: false,
+      restarted: !this.state.restarted,
+      timerUpdate: !this.state.timerUpdate, 
     })
   }
 
@@ -125,13 +157,29 @@ export class App extends React.Component {
                       default:
                           return; 
                   }
-              })()}
-      <div className="main-container" >
-        <Chat newname={newName} updateCount={this.updateCount} assistant={this.assistant}/>
-        <div className="statistic-container">
-          <Statistic count={this.state.nameCount}/>
+                }
+          )()
+        }
+        <div className="fill-container" style={{"display": this.state.isEndGame ? "flex" : "none"}}>
+          {this.state.isEndGame ? <EndGame count={this.state.nameCount} restart={this.restart}/> : <div/>}
         </div>
-      </div>
+        <div className="main-container" >
+          <Chat 
+            newname={newName}
+            updateCount={this.updateCount} 
+            assistant={this.assistant} 
+            messages={this.state.messages} 
+            restart={this.restart}
+          />
+          <div className="statistic-container">
+            <Statistic 
+              count={this.state.nameCount} 
+              endGame={this.endGame} 
+              restart={this.restart} 
+              update={this.state.timerUpdate}
+            />
+          </div>
+        </div>
       </DeviceThemeProvider>
     );
   }
