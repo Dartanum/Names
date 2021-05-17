@@ -16,7 +16,7 @@ const COLOR_CODES = {
     threshold: ALERT_THRESHOLD,
   },
 };
-const TIME_LIMIT = 30;
+const TIME_LIMIT = 20;
 const FULL_DASH_ARRAY = 283;
 let timePassed = 0;
 let timerInterval = null;
@@ -29,6 +29,7 @@ export class Timer extends React.Component {
       timeLeft: TIME_LIMIT,
       isEnd: false,
       isRestart: false,
+      isPause: this.props.isPause,
     };
   }
   formatTimeLeft = (time) => {
@@ -81,6 +82,9 @@ export class Timer extends React.Component {
         .classList.remove(alert.color);
       document
         .getElementById("base-timer-path-remaining")
+        .classList.remove(warning.color);
+      document
+        .getElementById("base-timer-path-remaining")
         .classList.add(info.color);
     }
   };
@@ -89,14 +93,20 @@ export class Timer extends React.Component {
     timerInterval = setInterval(() => {
       if (!this.state.isEnd) {
         // Количество времени, которое прошло, увеличивается на  1
-        timePassed = timePassed >= TIME_LIMIT ? 0 : (timePassed += 1);
-        this.setState({
-          timeLeft: TIME_LIMIT - timePassed,
-          isEnd: false,
-        });
-        // Обновляем метку оставшегося времени
-        document.getElementById("base-timer-label").innerHTML =
-          this.formatTimeLeft(this.state.timeLeft);
+        if (!this.props.isPause) {
+          timePassed = timePassed >= TIME_LIMIT ? 0 : (timePassed += 1);
+          this.setState({
+            timeLeft: TIME_LIMIT - timePassed,
+            isEnd: false,
+          });
+          if(this.props.assistantSayTime === this.state.timeLeft) {
+            this.props.assistantSay();
+          }
+          // Обновляем метку оставшегося времени
+          document.getElementById("base-timer-label").innerHTML =
+            this.formatTimeLeft(this.state.timeLeft);
+            this.setRemainingPathColor(this.state.timeLeft);
+        } 
         if (this.state.timeLeft <= 0) {
           this.setState({
             timeLeft: 0,
@@ -105,7 +115,6 @@ export class Timer extends React.Component {
           this.props.endGame();
         }
         this.setCircleDasharray();
-        this.setRemainingPathColor(this.state.timeLeft);
       }
     }, 1000);
   };
@@ -113,8 +122,8 @@ export class Timer extends React.Component {
   endGame = () => {
     this.props.endGame();
   };
-  shouldComponentUpdate(nextProps, nextState){
-    if(this.props.update !== nextProps.update) {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.update !== nextProps.update) {
       this.restartTimer();
       return true;
     }
@@ -125,8 +134,8 @@ export class Timer extends React.Component {
     this.setState({
       timeLeft: TIME_LIMIT,
       isEnd: false,
-    })
-  }
+    });
+  };
   render() {
     let pathClass = `base-timer__path-remaining ${remainingPathColor}`;
     console.log("timer updated");
@@ -146,7 +155,7 @@ export class Timer extends React.Component {
             />
             <path
               id="base-timer-path-remaining"
-              stroke-dasharray="283"
+              strokeDasharray="283"
               className={pathClass}
               d="
           M 50, 50

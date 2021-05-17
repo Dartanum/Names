@@ -12,7 +12,11 @@ export default class Chat extends React.Component {
     super(props);
     this.tfRef = React.createRef();
     this.state = {
-      textName: "",
+      textName: "", //текст, введенный в чате
+      lastSayPlayer: false, //true, если последнее имя сказал игрок
+      assistantSaing: false, //true, если вызван метод assistantSayName
+      nameForAssistant: "", //имя, которое должен сказать ассистент
+      isPause: false,
     };
   }
 
@@ -27,13 +31,18 @@ export default class Chat extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    if (nextProps.assistantSay) {
+      console.log(`assistantSay from chat = ${this.props.assistantSay}`);
+      this.assistantSayName(this.state.nameForAssistant);
+      nextProps.assistantSaied();
+      return false;
+    }
     if (this.props.newname !== nextProps.newname) {
       this.sayName(nextProps.newname);
       clicked = true;
       return true;
     }
-    if(this.props.messages !== nextProps.messages)
-      return true;
+    if (this.props.messages !== nextProps.messages) return true;
     if (this.state !== nextState) return true;
     return false;
   }
@@ -46,41 +55,91 @@ export default class Chat extends React.Component {
   };
   //добавление вводимого сообщения
   sayName = (msg) => {
-    msg = this.toNameFormat(msg);
-    console.log(msg);
-    let temp = this.props.messages;
-    let fromWho;
-    if (temp.length !== 0) {
-      fromWho =
-        temp[temp.length - 1].from === "from-me" ? "from-them" : "from-me";
-    } else fromWho = "from-me";
-    let res = checker(msg, temp);
-    if (res === 0) {
-      if (msg !== "") {
-        temp.push({ name: msg, from: fromWho });
-        this.props.updateCount();
+    if (!this.props.isPause) {
+      if (!this.state.lastSayPlayer) {
+        msg = this.toNameFormat(msg);
+        let temp = this.props.messages;
+        let res = checker(msg, temp);
+        if (res === 0) {
+          temp.push({ name: msg, from: "from-me" });
+          /* Отправить в бэк get запрос со следующим именем */
+          let nameFromBackend = temp[temp.length - 1].name;
+          nameFromBackend =
+            nameFromBackend[nameFromBackend.length - 1].toUpperCase() + "а";
+          this.setState({
+            textName: this.tfRef.current.value,
+            lastSayPlayer: true,
+            nameForAssistant: nameFromBackend,
+          });
+          this.createAssistantSayTime();
+          this.props.allowPause(true);
+          this.props.updateCount(true);
+          return;
+        }
+        if (res === 1 || res === 2 || res === 3 || res === 4) {
+          this.props.assistant.sendData({
+            action: {
+              action_id: res,
+            },
+          });
+          return;
+        } else {
+          this.props.assistant.sendData({
+            action: {
+              action_id: "firstSym",
+              parameters: { sym: res.toUpperCase() },
+            },
+          });
+        }
+      } else if (!this.state.assistantSaing) {
+        this.assistantSayName(this.state.nameForAssistant);
       }
+    }
+  };
+
+  getRandomInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
+  };
+
+  createAssistantSayTime = () => {
+    let timeReply = this.getRandomInt(0, 102);
+    console.log(timeReply); 
+    if (timeReply > 100) {
       this.setState({
-        textName: this.tfRef.current.value,
+        lastSayPlayer: false,
+        assistantSaing: false,
+        nameForAssistant: "",
       });
+      this.props.endGame();
       return;
     }
-    if(res === 1 || res === 2 || res === 3 || res === 4) {
-      this.props.assistant.sendData({
-        action: {
-          action_id: res,
-        },
-      });
-      return;
-    }
-    else {
-      this.props.assistant.sendData({
-        action: {
-          action_id: 'firstSym',
-          parameters: {sym: res.toUpperCase()},
-        },
-      });
-    }
+    timeReply = 19 - (timeReply % 10) + 1;
+    console.log(timeReply);
+    this.props.setAssistantSayTime(timeReply);
+    this.setState({
+      assistantSaing: true,
+    });
+  };
+
+  assistantSayName = (name) => {
+    console.log("assistantSayName");
+    this.props.assistant.sendData({
+      action: {
+        action_id: "assistantSay",
+        parameters: { name: name },
+      },
+    });
+    this.props.messages.push({ name: name, from: "from-them" });
+    this.setState({
+      lastSayPlayer: false,
+      nameForAssistant: "",
+      assistantSaing: false,
+    });
+    this.props.updateCount(false);
+    this.props.allowPause(false);
+    this.updateScroll();
   };
 
   click = () => {

@@ -8,20 +8,12 @@ import "./EndGame.css";
 
 export class EndGame extends React.Component {
 
-  state = {
-    isRestart: false,
-    isExit: false,
-  };
-
   clickRestart = () => {
     this.props.restart();
   };
 
   clickClose = () => {
-    this.setState({
-      isRestart: this.state.isRestart,
-      isExit: !this.state.isExit,
-    });
+    setTimeout(()=>{console.log('closed'); this.props.assistant.close();},1);
   };
 
   render() {

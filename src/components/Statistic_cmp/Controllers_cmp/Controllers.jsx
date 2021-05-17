@@ -5,20 +5,16 @@ import "./Controllers.css"
 
 export class Controllers extends React.Component {
 
-    state = {
-        isPause: false,
-    }
-
     updatePauseButton = () => {
-        if(this.state.isPause)
+        if(this.props.isPause)
             return <IconPlay size="l"/>
         else return <IconPause size="l"/>
     }
 
     clickPause = () => {
-        this.setState({
-            isPause: !this.state.isPause,
-        });
+        if(this.props.allowPause) {
+            this.props.pause();
+        }
     }
 
     clickRestart = () => {
@@ -26,15 +22,14 @@ export class Controllers extends React.Component {
     }
 
     clickClose = () => {
-        this.setState({
-            isPause: this.state.isPause,
-        });
+        setTimeout(()=>{console.log('closed'); this.props.assistant.close();},1);
     }
+
     render() {
         return (
             <div className="controllers-container">
                 <Button
-                    style={{"margin-right": "20px"}}
+                    style={{"marginRight": "20px"}}
                     size="l"
                     view="primary"
                     pin="circle-circle"
@@ -47,7 +42,7 @@ export class Controllers extends React.Component {
                     contentLeft={<IconRefresh size="l"/>}
                     onClick={this.clickRestart}/>
                 <Button
-                    style={{"margin-left": "20px"}}
+                    style={{"marginLeft": "20px"}}
                     size="l"
                     view="critical"
                     pin="circle-circle"

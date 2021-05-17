@@ -6,6 +6,10 @@ export default class StatContainer extends React.Component {
   endGame = () => {
     this.props.endGame();
   };
+  assistantSay = () => {
+    this.props.assistantSay();
+  }
+
   render() {
     return (
       <div>
@@ -14,7 +18,13 @@ export default class StatContainer extends React.Component {
           size="l"
           style={{ width: "150px", margin: "30px auto" }}
         />
-        <Timer endGame={this.endGame} update={this.props.update}/>
+        <Timer 
+          endGame={this.endGame} 
+          update={this.props.update} 
+          isPause={this.props.isPause}
+          assistantSayTime={this.props.assistantSayTime}
+          assistantSay={this.assistantSay}
+        />
       </div>
     );
   }
