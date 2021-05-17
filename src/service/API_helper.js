@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const URL = "";
+const URL = "https://dashboard.heroku.com/apps/namesgame/";
 
 export async function sendName(idUser, name) {
     const {data: newName} = await axios.post(`${URL}`, {
@@ -20,8 +20,7 @@ export async function findNickName(idUser) {
             UserId: idUser
             }
         });
-    if(response === '1') return true;
-    else return false;
+    return response;
 }
 
 export async function sendNickName(idUser, nickname) {

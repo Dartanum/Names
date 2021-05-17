@@ -36,7 +36,7 @@ export class Controllers extends React.Component {
                     contentLeft={this.updatePauseButton()}
                     onClick={this.clickPause} />
                 <Button 
-                    size="l"
+                    size="l"    
                     view="warning"
                     pin="circle-circle"
                     contentLeft={<IconRefresh size="l"/>}

@@ -11,6 +11,7 @@ import "./App.css";
 import Chat from "../Chat_cmp/Chat";
 import Statistic from "../Statistic_cmp/Statistic";
 import { EndGame } from "../EndGame_cmp/EndGame";
+import {findNickName} from "../../service/API_helper"
 
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
 const ThemeBackgroundSber = createGlobalStyle(darkSber);
@@ -70,8 +71,17 @@ export class App extends React.Component {
     });
     this.assistant.on("data", (event) => {
       switch (event.type) {
-        case "initSub":
+        case "initSub": 
           userId = event.sub;
+          // let response = findNickName(userId);
+          // console.log(response);
+          // if(response === '') {
+          //   console.log("there is now available nickname");
+          // } else {
+          //   this.setState({
+          //     nickname: response,
+          //   })
+          // }
           break;
         case "character":
           if (event.character.id === "eva") newName = "Афина";
@@ -143,11 +153,12 @@ export class App extends React.Component {
     });
   };
 
-  endGame = () => {
-    this.setState({
+  endGame = async () => {
+    await this.setState({
       isEndGame: true,
+      isPause: true,
     });
-    this.assistant.sendData({
+    await this.assistant.sendData({
       action: {
         action_id: this.state.playerWin ? "assistantLose" : "assistantWin",
       },
@@ -155,6 +166,8 @@ export class App extends React.Component {
   };
 
   restart = () => {
+    console.log("restart from App");
+    newName = "";
     this.setState({
       messages: [],
       nameCount: 0,
@@ -236,10 +249,9 @@ export class App extends React.Component {
           <Chat
             newname={newName}
             updateCount={this.updateCount}
-            endGame={this.endGame}
             assistant={this.assistant}
             messages={this.state.messages}
-            restart={this.restart}
+            restarted={this.state.restarted}
             isPause={this.state.isPause}
             allowPause={this.allowPause}
             setAssistantSayTime={this.setAssistantSayTime}

@@ -31,6 +31,17 @@ export default class Chat extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.restarted !== nextProps.restarted) {
+      console.log("restart from chat");
+      this.setState({
+        textName: "",
+        lastSayPlayer: false,
+        assistantSaing: false,
+        nameForAssistant: "",
+        isPause: false,
+      });
+      return false;
+    }
     if (nextProps.assistantSay) {
       console.log(`assistantSay from chat = ${this.props.assistantSay}`);
       this.assistantSayName(this.state.nameForAssistant);
@@ -71,9 +82,9 @@ export default class Chat extends React.Component {
             lastSayPlayer: true,
             nameForAssistant: nameFromBackend,
           });
-          this.createAssistantSayTime();
           this.props.allowPause(true);
           this.props.updateCount(true);
+          this.createAssistantSayTime();
           return;
         }
         if (res === 1 || res === 2 || res === 3 || res === 4) {
@@ -105,17 +116,12 @@ export default class Chat extends React.Component {
 
   createAssistantSayTime = () => {
     let timeReply = this.getRandomInt(0, 102);
-    console.log(timeReply); 
+    console.log(timeReply);
     if (timeReply > 100) {
-      this.setState({
-        lastSayPlayer: false,
-        assistantSaing: false,
-        nameForAssistant: "",
-      });
-      this.props.endGame();
-      return;
+      timeReply = -1;
+    } else {
+      timeReply = 10 + (timeReply % 10);
     }
-    timeReply = 19 - (timeReply % 10) + 1;
     console.log(timeReply);
     this.props.setAssistantSayTime(timeReply);
     this.setState({
@@ -124,6 +130,7 @@ export default class Chat extends React.Component {
   };
 
   assistantSayName = (name) => {
+    clicked = true;
     console.log("assistantSayName");
     this.props.assistant.sendData({
       action: {

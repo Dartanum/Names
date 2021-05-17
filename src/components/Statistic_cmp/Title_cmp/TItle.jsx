@@ -25,15 +25,15 @@ export default class Title extends React.Component {
     return (
       <div className="header_container">
         <div className="info-container">
-          <img src={logo_user} className="logo-header" />
-          <div className="player-name">{this.props.nickname}</div>
+          <img src={logo_sber} className="logo-header" />
+          <div className="player-name">{newName}</div>
         </div>
         <div className="info-container">
           <img src={vs} className="logo-header" />
         </div>
         <div className="info-container">
-          <img src={logo_sber} className="logo-header" />
-          <div className="player-name">{newName}</div>
+          <img src={logo_user} className="logo-header" />
+          <div className="player-name">{this.props.nickname}</div>
         </div>
       </div>
     );

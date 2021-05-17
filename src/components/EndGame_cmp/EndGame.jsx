@@ -30,7 +30,7 @@ export class EndGame extends React.Component {
             />
             <div className="btn-container">
               <Button
-                style={{"margin-right": "15px"}}
+                style={{"marginRight": "15px"}}
                 size="l"
                 view="warning"
                 pin="circle-circle"
@@ -38,7 +38,7 @@ export class EndGame extends React.Component {
                 onClick={this.clickRestart}
               />
               <Button
-              style={{"margin-left": "15px"}}
+              style={{"marginLeft": "15px"}}
                 size="l"
                 view="critical"
                 pin="circle-circle"

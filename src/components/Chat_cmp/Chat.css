@@ -26,21 +26,20 @@
   display: flex;
   align-items: center;
   color: rgb(0, 0, 0);
+  margin-left: auto;
   background: #ffffff;
-  margin-right: auto;
   padding: 10px 20px;
   word-wrap: break-word;
   font-size: 24px;
   line-height: 24px;
   border-radius: 25px;
-  text-align: left;
+  text-align: right;
 }
 
 .from-them {
-  text-align: right;
   background: #108f5e;
   color: rgb(255, 255, 255);
-  margin-left: auto;
+  margin-right: auto;
   display: flex;
   align-items: center;
   padding: 10px 20px;
@@ -48,6 +47,7 @@
   font-size: 24px;
   line-height: 24px;
   border-radius: 25px;
+  text-align: left;
 }
 
 .editText {
