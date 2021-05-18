@@ -2,6 +2,7 @@
   "name": "salute-demo-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://dartanum.github.io/Names/",
   "dependencies": {
     "@sberdevices/assistant-client": "^2.14.0",
     "@sberdevices/plasma-icons": "^1.4.0",
@@ -28,7 +29,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
   },
   "eslintConfig": {
     "extends": [

@@ -12,6 +12,7 @@ import Chat from "../Chat_cmp/Chat";
 import Statistic from "../Statistic_cmp/Statistic";
 import { EndGame } from "../EndGame_cmp/EndGame";
 import {findNickName} from "../../service/API_helper"
+import { resolveProjectReferencePath } from "typescript";
 
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
 const ThemeBackgroundSber = createGlobalStyle(darkSber);
@@ -54,9 +55,9 @@ export class App extends React.Component {
       playerWin: false, //true, если последнее слово сказано игроком
       isPause: true, //true, если нажата пауза
       pauseAllow: true, //true, если в данный момент можно остановить игру
-      assistantSayTime: -1,
-      assistantSay: false,
-      nickname: "player",
+      assistantSayTime: -1, //на какой секунде ассистент должен сказать имя
+      assistantSay: false, //true, если сейчас ход ассистента
+      nickname: "player", //никней пользователя
     };
 
     this.assistant = initializeAssistant(() => this.getStateForAssistant());
@@ -73,8 +74,9 @@ export class App extends React.Component {
       switch (event.type) {
         case "initSub": 
           userId = event.sub;
-          // let response = findNickName(userId);
-          // console.log(response);
+          console.log(`userId = ${userId}`);
+          let response = findNickName(userId);    
+          console.log(response);
           // if(response === '') {
           //   console.log("there is now available nickname");
           // } else {
