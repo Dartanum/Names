@@ -1,0 +1,27 @@
+.main-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  justify-content: space-between;
+}
+
+.statistic-container {
+  display: flex;
+  flex-direction: column;
+  width: calc(50% - 10px);
+  border-radius: 17px;
+}
+
+.fill-container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(36, 35, 35, 0.918);
+  z-index: 20;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
