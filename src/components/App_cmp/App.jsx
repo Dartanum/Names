@@ -38,7 +38,7 @@ const DocStyle = createGlobalStyle`
 `;
 
 let newName = ""; //имя, сказанное голосом ассистенту
-let userId = "";
+let userId = "default";
 let nicknameGetting = false;
 export class App extends React.Component {
   constructor(props) {
@@ -56,12 +56,11 @@ export class App extends React.Component {
       pauseAllow: true, //true, если в данный момент можно остановить игру
       assistantSayTime: -1, //на какой секунде ассистент должен сказать имя
       assistantSay: false, //true, если сейчас ход ассистента
-      nickname: "player", //никней пользователя
+      nickname: "Игрок", //никней пользователя
     };
 
     this.assistant = initializeAssistant(() => this.getStateForAssistant());
     this.assistant.on("start", (event) => {
-      /* Запрос ника в бэкенд */
       this.assistant.sendData({
         action: {
           action_id: "addNickname",
@@ -263,6 +262,7 @@ export class App extends React.Component {
               restart={this.restart}
               assistant={this.assistant}
               isWin={this.state.playerWin}
+              isEndGame={this.state.isEndGame}
               exit={this.exit}
             />
           ) : (

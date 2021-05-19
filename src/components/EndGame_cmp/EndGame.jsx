@@ -19,7 +19,7 @@ export class EndGame extends React.Component {
   };
 
   shouldComponentUpdate(nextProps, nextState) {
-    if(this.props.isWin !== nextProps.isWin && !edited) {
+    if(nextProps.isEndGame && !edited) {
       edited = true;
       return true;
     }
