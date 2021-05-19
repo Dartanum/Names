@@ -22,7 +22,7 @@ export class Controllers extends React.Component {
     }
 
     clickClose = () => {
-        setTimeout(()=>{console.log('closed'); this.props.assistant.close();},1);
+        this.props.exit();
     }
 
     render() {

@@ -6,16 +6,25 @@ import {
 } from "@sberdevices/plasma-icons";
 import "./EndGame.css";
 
+let edited = false;
 export class EndGame extends React.Component {
 
   clickRestart = () => {
+    edited = false;
     this.props.restart();
   };
 
   clickClose = () => {
-    setTimeout(()=>{console.log('closed'); this.props.assistant.close();},1);
+    this.props.exit();
   };
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.props.isWin !== nextProps.isWin && !edited) {
+      edited = true;
+      return true;
+    }
+    return false;
+  }
   render() {
     let nameCount = this.props.count;
     return (

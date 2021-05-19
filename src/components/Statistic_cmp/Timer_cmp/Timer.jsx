@@ -138,7 +138,6 @@ export class Timer extends React.Component {
   };
   render() {
     let pathClass = `base-timer__path-remaining ${remainingPathColor}`;
-    console.log("timer updated");
     return (
       <div className="base-timer">
         <svg

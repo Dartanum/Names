@@ -31,6 +31,7 @@ export default class Statistic extends React.Component {
                 allowPause={this.props.allowPause}
                 pause={this.props.pause}
                 isPause={this.props.isPause}
+                exit={this.props.exit}
             />
         </div>
         );

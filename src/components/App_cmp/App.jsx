@@ -11,8 +11,7 @@ import "./App.css";
 import Chat from "../Chat_cmp/Chat";
 import Statistic from "../Statistic_cmp/Statistic";
 import { EndGame } from "../EndGame_cmp/EndGame";
-import {findNickName} from "../../service/API_helper"
-import { resolveProjectReferencePath } from "typescript";
+import { findNickName, sendNickName, clearRequest } from "../../service/API_helper";
 
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
 const ThemeBackgroundSber = createGlobalStyle(darkSber);
@@ -39,8 +38,8 @@ const DocStyle = createGlobalStyle`
 `;
 
 let newName = ""; //имя, сказанное голосом ассистенту
-let userId = null;
-
+let userId = "";
+let nicknameGetting = false;
 export class App extends React.Component {
   constructor(props) {
     super(props);
@@ -70,20 +69,16 @@ export class App extends React.Component {
       });
       console.log(`assistant.on(start)`, event);
     });
+  }
+
+  async componentDidMount() {
+    console.log("componentDidMount");
     this.assistant.on("data", (event) => {
       switch (event.type) {
-        case "initSub": 
+        case "initSub":
           userId = event.sub;
           console.log(`userId = ${userId}`);
-          let response = findNickName(userId);    
-          console.log(response);
-          // if(response === '') {
-          //   console.log("there is now available nickname");
-          // } else {
-          //   this.setState({
-          //     nickname: response,
-          //   })
-          // }
+          this.getLastNick();
           break;
         case "character":
           if (event.character.id === "eva") newName = "Афина";
@@ -98,6 +93,24 @@ export class App extends React.Component {
     });
   }
 
+  getLastNick = async () => {
+    if(userId !== "" && !nicknameGetting) {
+      console.log(`userId = ${userId}`);
+      console.log(`current nickname = ${this.state.nickname}`);
+      let { data } = await findNickName(userId);
+      console.log(data);
+      if(data === "") {
+        await sendNickName(userId, this.state.nickname);
+      }
+      else {
+        this.setState({
+          nickname: data,
+        })
+      }
+      nicknameGetting = true;
+    }
+  }
+  
   getStateForAssistant() {
     const state = {
       item_selector: {
@@ -109,8 +122,8 @@ export class App extends React.Component {
     };
     return state;
   }
-
-  dispatchAssistantAction(action) {
+  //Получение/отправка никнейма в бэкенд
+  async dispatchAssistantAction(action) {
     console.log("dispatchAssistantAction", action);
     if (action) {
       switch (action.type) {
@@ -119,6 +132,7 @@ export class App extends React.Component {
           console.log("Игровое имя: " + newNick);
           if (newNick.length < 15) {
             console.log("Correct nick");
+            await sendNickName(userId, action.data);
             this.setState({ nickname: action.data });
           } else {
             this.assistant.sendData({
@@ -136,7 +150,7 @@ export class App extends React.Component {
           this.restart();
           break;
         case "pause_game":
-          this.pause();
+          await this.pause();
           break;
         case "continue_game":
           if (this.state.isPause) this.pause();
@@ -156,18 +170,19 @@ export class App extends React.Component {
   };
 
   endGame = async () => {
-    await this.setState({
+    this.setState({
       isEndGame: true,
       isPause: true,
     });
-    await this.assistant.sendData({
+    this.assistant.sendData({
       action: {
         action_id: this.state.playerWin ? "assistantLose" : "assistantWin",
       },
     });
+    await clearRequest(userId);
   };
 
-  restart = () => {
+  restart = async () => {
     console.log("restart from App");
     newName = "";
     this.setState({
@@ -182,6 +197,12 @@ export class App extends React.Component {
       assistantSayTime: -1,
       assistantSay: false,
     });
+    await clearRequest(userId);
+  };
+
+  exit = async () => {
+    await clearRequest(userId);
+    this.assistant.close();
   };
 
   pause = () => {
@@ -242,6 +263,7 @@ export class App extends React.Component {
               restart={this.restart}
               assistant={this.assistant}
               isWin={this.state.playerWin}
+              exit={this.exit}
             />
           ) : (
             <div />
@@ -259,6 +281,7 @@ export class App extends React.Component {
             setAssistantSayTime={this.setAssistantSayTime}
             assistantSaied={this.assistantSaied}
             assistantSay={this.state.assistantSay}
+            userId={userId}
           />
           <div className="statistic-container">
             <Statistic
@@ -267,6 +290,7 @@ export class App extends React.Component {
               endGame={this.endGame}
               restart={this.restart}
               pause={this.pause}
+              exit={this.exit}
               isPause={this.state.isPause}
               allowPause={this.state.pauseAllow}
               update={this.state.timerUpdate}
