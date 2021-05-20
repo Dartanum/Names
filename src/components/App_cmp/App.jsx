@@ -12,6 +12,7 @@ import Chat from "../Chat_cmp/Chat";
 import Statistic from "../Statistic_cmp/Statistic";
 import { EndGame } from "../EndGame_cmp/EndGame";
 import { findNickName, sendNickName, clearRequest } from "../../service/API_helper";
+import { toNameFormat } from "../../service/WordChecker";
 
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
 const ThemeBackgroundSber = createGlobalStyle(darkSber);
@@ -56,7 +57,7 @@ export class App extends React.Component {
       pauseAllow: true, //true, если в данный момент можно остановить игру
       assistantSayTime: -1, //на какой секунде ассистент должен сказать имя
       assistantSay: false, //true, если сейчас ход ассистента
-      nickname: "Игрок", //никней пользователя
+      nickname: "Player", //никней пользователя
     };
 
     this.assistant = initializeAssistant(() => this.getStateForAssistant());
@@ -93,7 +94,7 @@ export class App extends React.Component {
   }
 
   getLastNick = async () => {
-    if(userId !== "" && !nicknameGetting) {
+    if(userId !== "default" && !nicknameGetting) {
       console.log(`userId = ${userId}`);
       console.log(`current nickname = ${this.state.nickname}`);
       let { data } = await findNickName(userId);
@@ -127,12 +128,12 @@ export class App extends React.Component {
     if (action) {
       switch (action.type) {
         case "add_nickname":
-          let newNick = action.data;
+          let newNick = await toNameFormat(action.data);
           console.log("Игровое имя: " + newNick);
           if (newNick.length < 15) {
             console.log("Correct nick");
-            await sendNickName(userId, action.data);
-            this.setState({ nickname: action.data });
+            await sendNickName(userId, newNick);
+            this.setState({ nickname: newNick });
           } else {
             this.assistant.sendData({
               action: {

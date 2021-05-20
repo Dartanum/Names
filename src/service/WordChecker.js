@@ -1,5 +1,5 @@
 //проверка на правильность вводимого сообщения
-function isCorrect(current_name, names) {
+export function isCorrect(current_name, names) {
   current_name = current_name.toLowerCase();
   let temp = names;
   let lastSym;
@@ -71,4 +71,10 @@ function isExist(msg, messages) {
   return false;
 }
 
-export default isCorrect;
+export function toNameFormat(msg) {
+  if (msg.length !== 0) {
+    msg = msg.toLowerCase();
+    msg = msg[0].toUpperCase() + msg.slice(1);
+  }
+  return msg;
+};

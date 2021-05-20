@@ -8,6 +8,7 @@
 
 .statistic-container {
   display: flex;
+  height: 100%;
   flex-direction: column;
   width: calc(50% - 10px);
   border-radius: 17px;

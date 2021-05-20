@@ -1,6 +1,6 @@
 import React from "react";
 import Message from "./Message_cmp/Message";
-import checker from "../../service/WordChecker";
+import {toNameFormat, isCorrect} from "../../service/WordChecker";
 import { TextField, ActionButton } from "@sberdevices/plasma-ui";
 import { IconMessage } from "@sberdevices/plasma-icons";
 import "./Chat.css";
@@ -26,14 +26,14 @@ export default class Chat extends React.Component {
     block.scrollTop = block.scrollHeight;
   };
 
-  async componentDidUpdate() {
-    if (clicked) await this.updateScroll();
-    clicked = await false;
+  componentDidUpdate() {
+    if(this.state.lastSayPlayer) clicked = true;
+    if (clicked) this.updateScroll();
+    clicked = false;
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  async shouldComponentUpdate(nextProps, nextState) {
     if (this.props.restarted !== nextProps.restarted) {
-      console.log("restart from chat");
       this.setState({
         textName: "",
         lastSayPlayer: false,
@@ -49,29 +49,22 @@ export default class Chat extends React.Component {
       return false;
     }
     if (this.props.newname !== nextProps.newname) {
-      this.sayName(nextProps.newname);
-      clicked = true;
-      return true;
+      await this.sayName(nextProps.newname);
+      return false;
     }
     if (this.props.isPause !== nextProps.isPause) return true;
     if (this.props.messages !== nextProps.messages) return true;
     if (this.state !== nextState) return true;
     return false;
   }
-  toNameFormat = (msg) => {
-    if (msg.length !== 0) {
-      msg = msg.toLowerCase();
-      msg = msg[0].toUpperCase() + msg.slice(1);
-    }
-    return msg;
-  };
+
   //добавление вводимого сообщения
   sayName = async (msg) => {
     if (!this.props.isPause) {
       if (!this.state.lastSayPlayer) {
-        msg = await this.toNameFormat(msg); //перевод введенной строки в формат имени
+        msg = await toNameFormat(msg); //перевод введенной строки в формат имени
         let temp = await this.props.messages; 
-        let res = await checker(msg, temp); //проверка на синтаксическую корректность введенного имени
+        let res = await isCorrect(msg, temp); //проверка на синтаксическую корректность введенного имени
         if (res === 0) {
           let nameFromBackend = await sendName( 
             this.props.userId,
@@ -121,7 +114,6 @@ export default class Chat extends React.Component {
       } else if (!this.state.assistantSaing) {
         await this.assistantSayName(this.state.nameForAssistant);
       }
-      await this.updateScroll();
     }
   };
 

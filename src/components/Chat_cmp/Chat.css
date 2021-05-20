@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   width: calc(50% - 10px);
-  height: 70vh;
+  height: 85vh;
   border: 3px solid white;
   border-radius: 17px;
   overflow: auto;
