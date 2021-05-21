@@ -40,11 +40,11 @@ const DocStyle = createGlobalStyle`
 
 let newName = ""; //имя, сказанное голосом ассистенту
 let userId = "default";
-let nicknameGetting = false;
+
 export class App extends React.Component {
   constructor(props) {
     super(props);
-
+    console.log("constructor")
     this.state = {
       messages: [], //сказанные имена
       nameCount: 0, //количество сказанных имен
@@ -68,18 +68,11 @@ export class App extends React.Component {
         },
       });
       console.log(`assistant.on(start)`, event);
+      setTimeout(this.assistant.sendData({action: {action_id: "getSub",}}), 300);
     });
-  }
 
-  async componentDidMount() {
-    console.log("componentDidMount");
     this.assistant.on("data", (event) => {
       switch (event.type) {
-        case "initSub":
-          userId = event.sub;
-          console.log(`userId = ${userId}`);
-          this.getLastNick();
-          break;
         case "character":
           if (event.character.id === "eva") newName = "Афина";
           if (event.character.id === "joy") newName = "Джой";
@@ -91,24 +84,6 @@ export class App extends React.Component {
       const { action } = event;
       this.dispatchAssistantAction(action);
     });
-  }
-
-  getLastNick = async () => {
-    if(userId !== "default" && !nicknameGetting) {
-      console.log(`userId = ${userId}`);
-      console.log(`current nickname = ${this.state.nickname}`);
-      let { data } = await findNickName(userId);
-      console.log(data);
-      if(data === "") {
-        await sendNickName(userId, this.state.nickname);
-      }
-      else {
-        this.setState({
-          nickname: data,
-        })
-      }
-      nicknameGetting = true;
-    }
   }
   
   getStateForAssistant() {
@@ -127,6 +102,11 @@ export class App extends React.Component {
     console.log("dispatchAssistantAction", action);
     if (action) {
       switch (action.type) {
+        case "get_sub":
+          userId = action.data;
+          let { data } = await findNickName(userId);
+          this.setState({nickname: data});
+          break;
         case "add_nickname":
           let newNick = await toNameFormat(action.data);
           console.log("Игровое имя: " + newNick);
@@ -262,6 +242,7 @@ export class App extends React.Component {
               count={this.state.nameCount}
               restart={this.restart}
               assistant={this.assistant}
+              character={this.state.character}
               isWin={this.state.playerWin}
               isEndGame={this.state.isEndGame}
               exit={this.exit}

@@ -7,6 +7,14 @@ import {
 import "./EndGame.css";
 
 let edited = false;
+const officialTitle = {
+  win: "Вы победили!",
+  lose: "Вы проиграли",
+}
+const unofficialTitle = {
+  win: "Ты победил!",
+  lose: "Ты проиграл",
+}
 export class EndGame extends React.Component {
 
   clickRestart = () => {
@@ -26,16 +34,18 @@ export class EndGame extends React.Component {
     return false;
   }
   render() {
+    console.log(this.props.character);
     let nameCount = this.props.count;
+    let result = this.props.character === "joy" ? unofficialTitle : officialTitle;
     return (
       <Card className="card-container" style={{ zIndex: 21 }}>
         <CardBody>
           <CardContent>
-            <CardHeadline1>{this.props.isWin ? "Вы победили!" : "Вы проиграли!"}</CardHeadline1>
+            <CardHeadline1>{this.props.isWin ? result.win : result.lose}</CardHeadline1>
             <Badge
                 text={`Сказано имён: ${nameCount}`}
                 size="l"
-                style={{ width: "150px", margin: "30px auto" }}
+                style={{margin: "30px auto" }}
             />
             <div className="btn-container">
               <Button
