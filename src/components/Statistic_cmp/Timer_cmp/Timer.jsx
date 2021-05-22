@@ -16,7 +16,7 @@ const COLOR_CODES = {
     threshold: ALERT_THRESHOLD,
   },
 };
-const TIME_LIMIT = 20;
+const TIME_LIMIT = 30;
 const FULL_DASH_ARRAY = 283;
 let timePassed = 0;
 let timerInterval = null;
@@ -29,7 +29,6 @@ export class Timer extends React.Component {
       timeLeft: TIME_LIMIT,
       isEnd: false,
       isRestart: false,
-      isPause: this.props.isPause,
     };
   }
   formatTimeLeft = (time) => {
@@ -120,17 +119,33 @@ export class Timer extends React.Component {
   };
 
   endGame = () => {
+    console.log("endGame from timer")
     this.props.endGame();
   };
   shouldComponentUpdate(nextProps, nextState) {
+    let lastAllow = this.props.allowPause;
+    let nextAllow = nextProps.allowPause;
+    let lastRequest = this.props.existPauseRequest;
+    let nextRequest = nextProps.existPauseRequest;
+    if((lastAllow === nextAllow && nextAllow && lastRequest !== nextRequest) || 
+      (lastAllow !== nextAllow && nextAllow && nextRequest && lastRequest === nextRequest)) {
+      this.props.pause();
+      if (this.props.update !== nextProps.update) {
+        this.restartTimer();
+      }
+      //console.log(lastAllow, nextAllow, lastRequest, nextRequest)
+      return false;
+    }
     if (this.props.update !== nextProps.update) {
       this.restartTimer();
       return true;
     }
+    if(this.state.timeLeft !== nextState.timeLeft) return true;
     return false;
   }
-  restartTimer = () => {
+  restartTimer = async () => {
     timePassed = 0;
+    this.setRemainingPathColor(TIME_LIMIT);
     this.setState({
       timeLeft: TIME_LIMIT,
       isEnd: false,

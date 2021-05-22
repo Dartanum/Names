@@ -16,7 +16,7 @@ export default class StatContainer extends React.Component {
         <Badge
           text={`Сказано имён: ${this.props.сount}`}
           size="l"
-          style={{margin: "30px auto" }}
+          style={{margin: "15px auto" }}
         />
         <Timer 
           endGame={this.endGame} 
@@ -24,6 +24,12 @@ export default class StatContainer extends React.Component {
           isPause={this.props.isPause}
           assistantSayTime={this.props.assistantSayTime}
           assistantSay={this.assistantSay}
+          existPauseRequest={this.props.existPauseRequest}
+          allowPause={this.props.allowPause}
+          pause={this.props.pause}
+          isWin={this.props.isWin}
+          restarted={this.props.restarted}
+          isEndGame={this.props.isEndGame}
         />
       </div>
     );

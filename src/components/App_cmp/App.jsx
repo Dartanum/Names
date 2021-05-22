@@ -11,9 +11,17 @@ import "./App.css";
 import Chat from "../Chat_cmp/Chat";
 import Statistic from "../Statistic_cmp/Statistic";
 import { EndGame } from "../EndGame_cmp/EndGame";
+import { Help } from "../Help_cmp/Help"
 import { findNickName, sendNickName, clearRequest } from "../../service/API_helper";
 import { toNameFormat } from "../../service/WordChecker";
-
+const rules = `Один игрок говорит имя, 
+                а другой отвечает ему именем на последнюю букву. На ответ дается 30 секунд, 
+                после чего игра заканчивается. Можно сменить свое игровое имя, сказав 
+                "Игровое имя" или "Ник". Чтобы перезапустить игру, скажите "заново" или "сначала". 
+                Чтобы приостановить игру, скажите "пауза". Появится значок часов. Она активируется 
+                только если последнее сказанное слово было за игроком. Чтобы начать играть, скажите
+                "начать".`
+    
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
 const ThemeBackgroundSber = createGlobalStyle(darkSber);
 const ThemeBackgroundJoy = createGlobalStyle(darkJoy);
@@ -40,6 +48,8 @@ const DocStyle = createGlobalStyle`
 
 let newName = ""; //имя, сказанное голосом ассистенту
 let userId = "default";
+let helpCalled = false;
+let gameStart = false;
 
 export class App extends React.Component {
   constructor(props) {
@@ -55,16 +65,17 @@ export class App extends React.Component {
       playerWin: false, //true, если последнее слово сказано игроком
       isPause: true, //true, если нажата пауза
       pauseAllow: true, //true, если в данный момент можно остановить игру
+      existPauseRequest: true,
       assistantSayTime: -1, //на какой секунде ассистент должен сказать имя
       assistantSay: false, //true, если сейчас ход ассистента
-      nickname: "Player", //никней пользователя
+      nickname: "Игрок", //никней пользователя
     };
 
     this.assistant = initializeAssistant(() => this.getStateForAssistant());
     this.assistant.on("start", (event) => {
       this.assistant.sendData({
         action: {
-          action_id: "addNickname",
+          action_id: "newGame",
         },
       });
       console.log(`assistant.on(start)`, event);
@@ -79,6 +90,9 @@ export class App extends React.Component {
           this.setState({
             character: event.character.id,
           });
+          break;
+        case "close_app":
+          clearRequest(userId);
           break;
       }
       const { action } = event;
@@ -130,10 +144,35 @@ export class App extends React.Component {
           this.restart();
           break;
         case "pause_game":
-          await this.pause();
+          if(!this.state.isPause && !this.state.isEndGame)
+            this.setState({
+              existPauseRequest: !this.state.existPauseRequest,
+            });
           break;
         case "continue_game":
-          if (this.state.isPause) this.pause();
+          if (this.state.isPause && !this.state.isEndGame)           
+            this.setState({
+              existPauseRequest: !this.state.existPauseRequest,
+            });
+          break;
+        case "start_game":
+          if(!gameStart) {
+            console.log(this.state.existPauseRequest)
+            this.setState({
+              existPauseRequest: false
+            })
+          }
+          break;
+        case "rules_game":
+          if(!helpCalled && !this.state.isEndGame) {
+            this.help();
+          }
+          break;
+        case "close_rules":
+          if(this.state.isPause && helpCalled) {
+            helpCalled = false;
+            this.setState(this.state);
+          }
           break;
         default:
           break;
@@ -141,15 +180,8 @@ export class App extends React.Component {
     }
   }
 
-  updateCount = (isPlayer) => {
-    this.setState({
-      nameCount: this.state.nameCount + 1,
-      timerUpdate: !this.state.timerUpdate,
-      playerWin: isPlayer,
-    });
-  };
-
   endGame = async () => {
+    gameStart = false;
     this.setState({
       isEndGame: true,
       isPause: true,
@@ -163,8 +195,10 @@ export class App extends React.Component {
   };
 
   restart = async () => {
-    console.log("restart from App");
+    console.log("restart");
     newName = "";
+    helpCalled = false;
+    gameStart = true;
     this.setState({
       messages: [],
       nameCount: 0,
@@ -176,6 +210,7 @@ export class App extends React.Component {
       pauseAllow: true,
       assistantSayTime: -1,
       assistantSay: false,
+      existPauseRequest: false,
     });
     await clearRequest(userId);
   };
@@ -186,17 +221,40 @@ export class App extends React.Component {
   };
 
   pause = () => {
-    if (this.state.pauseAllow) {
+    if(!gameStart) gameStart = true;
+      if(helpCalled) helpCalled = false;
       this.setState({
         isPause: !this.state.isPause,
       });
-    }
   };
 
-  allowPause = (verdict) => {
+  update = (verdict) => {
     this.setState({
+      nameCount: this.state.nameCount + 1,
+      timerUpdate: !this.state.timerUpdate,
+      playerWin: verdict,
       pauseAllow: verdict,
     });
+  };
+
+  help = () => {
+    if(this.state.isPause) {
+      helpCalled = !helpCalled;
+      if(helpCalled) {
+        this.assistant.sendData({
+          action: {
+            action_id: "Help",
+            parameters: { rules: rules }
+          }
+        })
+      }
+    }
+    this.setState(this.state);
+  }
+  pauseRequest = () => {
+    this.setState({
+      existPauseRequest: !this.state.existPauseRequest
+    })
   };
 
   assistantSay = () => {
@@ -211,6 +269,7 @@ export class App extends React.Component {
       assistantSay: false,
     });
   };
+
   setAssistantSayTime = (sec) => {
     this.setState({
       assistantSayTime: sec,
@@ -233,6 +292,12 @@ export class App extends React.Component {
               return;
           }
         })()}
+        <Help 
+          helpCalled={helpCalled}
+          isPause={this.state.isPause}
+          rules={rules}
+          help={this.help}
+        />
         <div
           className="fill-container"
           style={{ display: this.state.isEndGame ? "flex" : "none" }}
@@ -254,16 +319,16 @@ export class App extends React.Component {
         <div className="main-container">
           <Chat
             newname={newName}
-            updateCount={this.updateCount}
+            update={this.update}
             assistant={this.assistant}
             messages={this.state.messages}
             restarted={this.state.restarted}
             isPause={this.state.isPause}
-            allowPause={this.allowPause}
             setAssistantSayTime={this.setAssistantSayTime}
             assistantSaied={this.assistantSaied}
             assistantSay={this.state.assistantSay}
             userId={userId}
+            endGame={this.endGame}
           />
           <div className="statistic-container">
             <Statistic
@@ -273,13 +338,20 @@ export class App extends React.Component {
               restart={this.restart}
               pause={this.pause}
               exit={this.exit}
+              help={this.help}
               isPause={this.state.isPause}
               allowPause={this.state.pauseAllow}
+              pauseRequest={this.pauseRequest}
               update={this.state.timerUpdate}
               assistant={this.assistant}
               assistantSayTime={this.state.assistantSayTime}
               assistantSay={this.assistantSay}
               nickname={this.state.nickname}
+              existPauseRequest={this.state.existPauseRequest}
+              isWin={this.state.playerWin}
+              restarted={this.state.restarted}
+              isEndGame={this.state.isEndGame}
+              helpCalled={helpCalled}
             />
           </div>
         </div>

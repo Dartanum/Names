@@ -1,6 +1,6 @@
 import React from "react";
 import Message from "./Message_cmp/Message";
-import {toNameFormat, isCorrect} from "../../service/WordChecker";
+import { toNameFormat, isCorrect } from "../../service/WordChecker";
 import { TextField, ActionButton } from "@sberdevices/plasma-ui";
 import { IconMessage } from "@sberdevices/plasma-icons";
 import "./Chat.css";
@@ -27,7 +27,7 @@ export default class Chat extends React.Component {
   };
 
   componentDidUpdate() {
-    if(this.state.lastSayPlayer) clicked = true;
+    if (this.state.lastSayPlayer) clicked = true;
     if (clicked) this.updateScroll();
     clicked = false;
   }
@@ -43,9 +43,10 @@ export default class Chat extends React.Component {
       });
       return false;
     }
-    if (nextProps.assistantSay) {
-      this.assistantSayName(this.state.nameForAssistant);
-      nextProps.assistantSaied();
+    //если сейчас нужно говорить ассистенту
+    if (this.props.assistantSay !== nextProps.assistantSay) {
+      await this.assistantSayName(this.state.nameForAssistant);
+      await nextProps.assistantSaied();
       return false;
     }
     if (this.props.newname !== nextProps.newname) {
@@ -63,35 +64,36 @@ export default class Chat extends React.Component {
     if (!this.props.isPause) {
       if (!this.state.lastSayPlayer) {
         msg = await toNameFormat(msg); //перевод введенной строки в формат имени
-        let temp = await this.props.messages; 
+        let temp = await this.props.messages;
         let res = await isCorrect(msg, temp); //проверка на синтаксическую корректность введенного имени
         if (res === 0) {
-          let nameFromBackend = await sendName( 
-            this.props.userId,
-            msg
-          );
-          switch (nameFromBackend.data) {
-            case "1": //сказанного игроком имени нет в бд 
+          let nameFromBackend = await sendName(this.props.userId, msg);
+          nameFromBackend = nameFromBackend.data;
+          switch (nameFromBackend) {
+            case "1": //сказанного игроком имени нет в бд
               res = 5;
               console.log(`res = 5`);
               break;
             case "0": //нет имени для ассистента
               res = 6;
               break;
-            default: //пришло какое-то имя для ассистента
+            default:
+              //пришло какое-то имя для ассистента
               break;
+          }
+          if(nameFromBackend[nameFromBackend.length-1] === ".") {
+            res = 6;
           }
           if (res !== 5) {
             await temp.push({ name: msg, from: "from-me" });
-            await this.setState({
+            this.setState({
               textName: this.tfRef.current.value,
               lastSayPlayer: true,
-              nameForAssistant: nameFromBackend.data,
+              nameForAssistant: nameFromBackend,
             });
-            await this.props.allowPause(true);
-            await this.props.updateCount(true);
+            await this.props.update(true);
             let timeAnswer = 0;
-            if(res === 6) timeAnswer = 1;
+            if (res === 6) timeAnswer = 1;
             await this.createAssistantSayTime(timeAnswer);
             return;
           }
@@ -124,26 +126,23 @@ export default class Chat extends React.Component {
   };
 
   createAssistantSayTime = (time) => {
-    let timeReply = this.getRandomInt(0, 102);
-    if(time !== 0) {
-      timeReply = 101;
+    let chance = this.getRandomInt(0, 102);
+    if (time !== 0) {
+      chance = 101;
     }
-    if (timeReply > 100 || this.state.nameForAssistant === "") {
-      timeReply = -1;
+    if (chance > 100 || this.state.nameForAssistant === "") {
+      this.props.endGame();
     } else {
-      timeReply = 10 + (timeReply % 10);
+      this.props.setAssistantSayTime(29);
+      this.setState({
+        assistantSaing: true,
+      });
     }
-    console.log(timeReply);
-    this.props.setAssistantSayTime(timeReply);
-    this.setState({
-      assistantSaing: true,
-    });
   };
 
   assistantSayName = (name) => {
     if (name !== "" && name !== "1" && name !== "0") {
       clicked = true;
-      console.log("assistantSayName");
       this.props.assistant.sendData({
         action: {
           action_id: "assistantSay",
@@ -156,8 +155,7 @@ export default class Chat extends React.Component {
         nameForAssistant: "",
         assistantSaing: false,
       });
-      this.props.updateCount(false);
-      this.props.allowPause(false);
+      this.props.update(false);
       this.updateScroll();
     }
   };

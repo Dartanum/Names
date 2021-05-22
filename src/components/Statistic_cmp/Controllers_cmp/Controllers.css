@@ -4,5 +4,19 @@
     align-content: center;
     justify-content: center;
     width: 100%;
-    margin-top: 30px;
+    margin-top: 20px;
+}
+
+.item-clock {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    width: auto;
+}
+
+.hide-block {
+    opacity: 0;
+    width: 55px;
+    height: 30px;
 }
