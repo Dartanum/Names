@@ -14,14 +14,19 @@ import { EndGame } from "../EndGame_cmp/EndGame";
 import { Help } from "../Help_cmp/Help"
 import { findNickName, sendNickName, clearRequest } from "../../service/API_helper";
 import { toNameFormat } from "../../service/WordChecker";
-const rules = `Один игрок говорит имя, 
+
+let rules;
+function editRules(style) {
+  let offStyle = style === "off" ? "скажите" : "скажи";
+  let rules = `Один игрок говорит имя, 
                 а другой отвечает ему именем на последнюю букву. На ответ дается 30 секунд, 
                 после чего игра заканчивается. Можно сменить свое игровое имя, сказав 
-                "Игровое имя" или "Ник". Чтобы перезапустить игру, скажите "заново" или "сначала". 
-                Чтобы приостановить игру, скажите "пауза". Появится значок часов. Она активируется 
-                только если последнее сказанное слово было за игроком. Чтобы начать играть, скажите
-                "начать".`
-    
+                «Игровое имя» или «Ник». Чтобы перезапустить игру, ${offStyle} «заново» или «сначала». 
+                Чтобы приостановить игру, ${offStyle} «пауза». Появится значок часов. Она активируется 
+                только если последнее сказанное слово было за игроком. Чтобы начать играть, ${offStyle}
+                «начать».`
+  return rules;
+}
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
 const ThemeBackgroundSber = createGlobalStyle(darkSber);
 const ThemeBackgroundJoy = createGlobalStyle(darkJoy);
@@ -79,14 +84,19 @@ export class App extends React.Component {
         },
       });
       console.log(`assistant.on(start)`, event);
+      rules = editRules("off");
       setTimeout(this.assistant.sendData({action: {action_id: "getSub",}}), 300);
     });
 
     this.assistant.on("data", (event) => {
       switch (event.type) {
         case "character":
+          rules = editRules("off");
+          if (event.character.id === "joy") {
+            newName = "Джой";
+            rules = editRules("unoff");
+          }
           if (event.character.id === "eva") newName = "Афина";
-          if (event.character.id === "joy") newName = "Джой";
           this.setState({
             character: event.character.id,
           });
@@ -101,12 +111,10 @@ export class App extends React.Component {
   }
   
   getStateForAssistant() {
+    console.log("getStateForAssistant");
     const state = {
       item_selector: {
-        items: this.state.messages.map(({ name, from }, index) => ({
-          name,
-          from,
-        })),
+        items: this.state.isPause, 
       },
     };
     return state;
@@ -144,19 +152,19 @@ export class App extends React.Component {
           this.restart();
           break;
         case "pause_game":
-          if(!this.state.isPause && !this.state.isEndGame)
+          if(!this.state.isPause && !this.state.isEndGame && !helpCalled )
             this.setState({
               existPauseRequest: !this.state.existPauseRequest,
             });
           break;
         case "continue_game":
-          if (this.state.isPause && !this.state.isEndGame)           
+          if (this.state.isPause && !this.state.isEndGame && !helpCalled)           
             this.setState({
               existPauseRequest: !this.state.existPauseRequest,
             });
           break;
         case "start_game":
-          if(!gameStart) {
+          if(!gameStart && !helpCalled) {
             console.log(this.state.existPauseRequest)
             this.setState({
               existPauseRequest: false
@@ -199,6 +207,11 @@ export class App extends React.Component {
     newName = "";
     helpCalled = false;
     gameStart = true;
+    this.assistant.sendData({
+      action: {
+        action_id: "default"
+      }
+    })
     this.setState({
       messages: [],
       nameCount: 0,
@@ -245,6 +258,12 @@ export class App extends React.Component {
           action: {
             action_id: "Help",
             parameters: { rules: rules }
+          }
+        })
+      } else {
+        this.assistant.sendData({
+          action: {
+            action_id: "default"
           }
         })
       }

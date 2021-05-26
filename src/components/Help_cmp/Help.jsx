@@ -1,7 +1,8 @@
 import React from 'react'
-import {Card, CardBody, CardContent, Button, CardHeadline1, CardParagraph2} from "@sberdevices/plasma-ui"
+import {Card, CardBody, CardContent, Button, CardHeadline2, CardParagraph2} from "@sberdevices/plasma-ui"
 import "../App_cmp/App.css"
 import "../EndGame_cmp/EndGame.css"
+import "./Help.css"
 
 export class Help extends React.Component {
 
@@ -14,11 +15,11 @@ export class Help extends React.Component {
           className="fill-container"
           style={{ display: this.props.helpCalled && this.props.isPause ? "flex" : "none" }}
         >
-            <Card className="card-container" style={{ zIndex: 21, width: "100%" }}>
-                <CardBody>
+            <Card className="card-container" style={{ zIndex: 21, width: "70%" }}>
+                <CardBody className="card-style">
                 <CardContent>
-                    <CardHeadline1 style={{"textAlign": "center"}}>Правила</CardHeadline1>
-                    <CardParagraph2 lines={10}>{this.props.rules}</CardParagraph2>
+                    <CardHeadline2 style={{"textAlign": "center"}}>Правила</CardHeadline2>
+                    <CardParagraph2 style={{fontSize: "70%"}} lines={10}>{this.props.rules}</CardParagraph2>
                     <Button
                         view = "primary"
                         size = "s"
