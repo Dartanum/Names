@@ -129,7 +129,8 @@ export class Timer extends React.Component {
     let nextRequest = nextProps.existPauseRequest;
     if((lastAllow === nextAllow && nextAllow && lastRequest !== nextRequest) || 
       (lastAllow !== nextAllow && nextAllow && nextRequest && lastRequest === nextRequest)) {
-      this.props.pause();
+      if(this.props.restarted === nextProps.restarted)
+        this.props.pause();
       if (this.props.update !== nextProps.update) {
         this.restartTimer();
       }
@@ -137,6 +138,7 @@ export class Timer extends React.Component {
       return false;
     }
     if (this.props.update !== nextProps.update) {
+      console.log("restart");
       this.restartTimer();
       return true;
     }

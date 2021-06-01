@@ -127,12 +127,14 @@ export class App extends React.Component {
         case "get_sub":
           userId = action.data;
           let { data } = await findNickName(userId);
-          this.setState({nickname: data});
+          console.log(data);
+          if(data !== "")
+            this.setState({nickname: data});
           break;
         case "add_nickname":
           let newNick = await toNameFormat(action.data);
           console.log("Игровое имя: " + newNick);
-          if (newNick.length < 15) {
+          if (newNick.length < 15 && newNick.length > 1) {
             console.log("Correct nick");
             await sendNickName(userId, newNick);
             this.setState({ nickname: newNick });
@@ -203,15 +205,13 @@ export class App extends React.Component {
   };
 
   restart = async () => {
-    console.log("restart");
     newName = "";
     helpCalled = false;
     gameStart = true;
-    this.assistant.sendData({
-      action: {
-        action_id: "default"
-      }
-    })
+    this.assistant.sendData({action: {action_id: "btnPause"}})
+    if(this.state.isPause) {
+      this.pause();
+    }
     this.setState({
       messages: [],
       nameCount: 0,
@@ -236,6 +236,9 @@ export class App extends React.Component {
   pause = () => {
     if(!gameStart) gameStart = true;
       if(helpCalled) helpCalled = false;
+      if(this.state.isPause) {
+        this.assistant.sendData({action: {action_id: "btnPause"}})
+      } else this.assistant.sendData({action: {action_id: "btnContinue"}})
       this.setState({
         isPause: !this.state.isPause,
       });
@@ -261,11 +264,7 @@ export class App extends React.Component {
           }
         })
       } else {
-        this.assistant.sendData({
-          action: {
-            action_id: "default"
-          }
-        })
+        this.assistant.sendData({action: {action_id: "btnRules"}})
       }
     }
     this.setState(this.state);
