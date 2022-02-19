@@ -7,6 +7,15 @@
     margin-top: 20px;
 }
 
+.controllers-container-mobile {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
 .item-clock {
     display: flex;
     align-items: center;

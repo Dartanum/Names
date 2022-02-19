@@ -19,10 +19,12 @@ export default class Statistic extends React.Component {
         return (
         <div>
             <Title 
+                isPhone={this.props.isPhone}
                 assistant={this.props.character}
                 nickname={this.props.nickname}
             />
             <StatContainer 
+                isPhone={this.props.isPhone}
                 сount={this.props.count} 
                 endGame={this.endGame} 
                 update={this.props.update}
@@ -37,6 +39,7 @@ export default class Statistic extends React.Component {
                 isEndGame={this.props.isEndGame}
             />
             <Controllers 
+                isPhone={this.props.isPhone}
                 restart={this.props.restart} 
                 assistant={this.props.assistant} 
                 pauseRequest={this.props.pauseRequest}
@@ -44,10 +47,11 @@ export default class Statistic extends React.Component {
                 isPause={this.props.isPause}
                 exit={this.props.exit}
             />
-            <div className="help-btn">
+            <div className={this.props.isPhone ? "help-btn-mobile" : "help-btn"}>
                 <Button
                     view="primary"
                     size="s"
+                    style={this.props.isPhone ? {width: "80px", height: "25px", fontSize: "10px"} : {}}
                     disabled={!this.props.isPause ? true : false}
                     onClick={this.helpClick}
                 >

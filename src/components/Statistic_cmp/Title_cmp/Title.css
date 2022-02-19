@@ -1,7 +1,3 @@
-.title_container {
-  height: 30%;
-  width: auto;
-}
 .sberLogo {
   height: 100%;
 }
@@ -11,11 +7,21 @@
   align-items: center;
   justify-content: center;
   margin-top: 15px;
-  width: 100%;
+}
+
+.header_container-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
 }
 
 .logo-header {
   width: 100px;
+}
+
+.logo-header-mobile {
+  width: 60px;
 }
 
 .player-name {

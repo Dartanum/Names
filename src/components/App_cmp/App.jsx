@@ -24,7 +24,7 @@ function editRules(style) {
                 «Игровое имя» или «Ник». Чтобы перезапустить игру, ${offStyle} «заново» или «сначала». 
                 Чтобы приостановить игру, ${offStyle} «пауза». Появится значок часов. Она активируется 
                 только если последнее сказанное слово было за игроком. Чтобы начать играть, ${offStyle}
-                «начать».`
+                «начать»`
   return rules;
 }
 const ThemeBackgroundEva = createGlobalStyle(darkEva);
@@ -55,11 +55,11 @@ let newName = ""; //имя, сказанное голосом ассистент
 let userId = "default";
 let helpCalled = false;
 let gameStart = false;
+let isPhone = window.matchMedia("(max-width: 768px)").matches;
 
 export class App extends React.Component {
   constructor(props) {
     super(props);
-    console.log("constructor")
     this.state = {
       messages: [], //сказанные имена
       nameCount: 0, //количество сказанных имен
@@ -83,7 +83,6 @@ export class App extends React.Component {
           action_id: "newGame",
         },
       });
-      console.log(`assistant.on(start)`, event);
       rules = editRules("off");
       setTimeout(this.assistant.sendData({action: {action_id: "getSub",}}), 300);
     });
@@ -111,7 +110,6 @@ export class App extends React.Component {
   }
   
   getStateForAssistant() {
-    console.log("getStateForAssistant");
     const state = {
       item_selector: {
         items: this.state.isPause, 
@@ -133,9 +131,7 @@ export class App extends React.Component {
           break;
         case "add_nickname":
           let newNick = await toNameFormat(action.data);
-          console.log("Игровое имя: " + newNick);
           if (newNick.length < 15 && newNick.length > 1) {
-            console.log("Correct nick");
             await sendNickName(userId, newNick);
             this.setState({ nickname: newNick });
           } else {
@@ -167,7 +163,6 @@ export class App extends React.Component {
           break;
         case "start_game":
           if(!gameStart && !helpCalled) {
-            console.log(this.state.existPauseRequest)
             this.setState({
               existPauseRequest: false
             })
@@ -334,8 +329,9 @@ export class App extends React.Component {
             <div />
           )}
         </div>
-        <div className="main-container">
+        <div className={isPhone ? "main-container-mobile" : "main-container"}>
           <Chat
+            isPhone={isPhone}
             newname={newName}
             update={this.update}
             assistant={this.assistant}
@@ -348,8 +344,9 @@ export class App extends React.Component {
             userId={userId}
             endGame={this.endGame}
           />
-          <div className="statistic-container">
+          <div className={isPhone ? "statistic-container-mobile" : "statistic-container"}>
             <Statistic
+              isPhone={isPhone}
               character={this.state.character}
               count={this.state.nameCount}
               endGame={this.endGame}

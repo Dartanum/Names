@@ -21,6 +21,7 @@ const FULL_DASH_ARRAY = 283;
 let timePassed = 0;
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
+
 export class Timer extends React.Component {
   constructor(props) {
     super(props);
@@ -119,7 +120,6 @@ export class Timer extends React.Component {
   };
 
   endGame = () => {
-    console.log("endGame from timer")
     this.props.endGame();
   };
   shouldComponentUpdate(nextProps, nextState) {
@@ -138,7 +138,6 @@ export class Timer extends React.Component {
       return false;
     }
     if (this.props.update !== nextProps.update) {
-      console.log("restart");
       this.restartTimer();
       return true;
     }
@@ -154,9 +153,11 @@ export class Timer extends React.Component {
     });
   };
   render() {
+    const isPhone = this.props.isPhone;
     let pathClass = `base-timer__path-remaining ${remainingPathColor}`;
+
     return (
-      <div className="base-timer">
+      <div className={isPhone ? "base-timer-mobile" : "base-timer"}>
         <svg
           className="base-timer__svg"
           viewBox="0 0 100 100"
@@ -182,7 +183,7 @@ export class Timer extends React.Component {
             ></path>
           </g>
         </svg>
-        <span id="base-timer-label" className="base-timer__label">
+        <span id="base-timer-label" className={isPhone ? "base-timer__label-mobile" : "base-timer__label"}>
           {this.formatTimeLeft(this.state.timeLeft)}
         </span>
       </div>

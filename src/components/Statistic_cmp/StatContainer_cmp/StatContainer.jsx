@@ -11,14 +11,17 @@ export default class StatContainer extends React.Component {
   }
 
   render() {
+    const isPhone = this.props.isPhone;
+
     return (
       <div>
         <Badge
           text={`Сказано имён: ${this.props.сount}`}
           size="l"
-          style={{margin: "15px auto" }}
+          style={isPhone ? {margin: "5px auto", fontSize: "9px", height: "20px"} : {margin: "15px auto" }}
         />
         <Timer 
+          isPhone={isPhone}
           endGame={this.endGame} 
           update={this.props.update} 
           isPause={this.props.isPause}

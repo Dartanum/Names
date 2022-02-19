@@ -85,7 +85,7 @@ export default class Chat extends React.Component {
             res = 6;
           }
           if (res !== 5) {
-            await temp.push({ name: msg, from: "from-me" });
+            await temp.push({ name: msg, from: this.props.isPhone ? "from-me-mobile" : "from-me" });
             this.setState({
               textName: this.tfRef.current.value,
               lastSayPlayer: true,
@@ -149,7 +149,7 @@ export default class Chat extends React.Component {
           parameters: { name: name },
         },
       });
-      this.props.messages.push({ name: name, from: "from-them" });
+      this.props.messages.push({ name: name, from: this.props.isPhone ? "from-them-mobile" : "from-them" });
       this.setState({
         lastSayPlayer: false,
         nameForAssistant: "",
@@ -163,7 +163,7 @@ export default class Chat extends React.Component {
   click = () => {
     this.tfRef.current.value = "";
     if (!this.props.isPause) {
-      this.sayName(this.state.textName);
+      this.sayName(this.state.textName, this.props.isPhone);
       clicked = true;
     }
   };
@@ -175,13 +175,15 @@ export default class Chat extends React.Component {
   };
 
   render() {
+    const isPhone = this.props.isPhone;
     let messageList = this.props.messages.map((msg, index) => (
-      <Message key={index} name={msg.name} from={msg.from} />
+      <Message key={index} name={msg.name} from={msg.from} isPhone={isPhone}/>
     ));
     let disabled = this.props.isPause ? true : false;
+
     return (
-      <div className="chat">
-        <div className="subChat" id="block">
+      <div className={isPhone ? "chat-mobile" : "chat"}>
+        <div className={isPhone ? "subChat-mobile" : "subChat"} id="block">
           {messageList}
         </div>
         <TextField

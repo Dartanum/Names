@@ -10,11 +10,30 @@
   margin: 20px;
 }
 
+.chat-mobile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 40vh;
+  border: 3px solid white;
+  border-radius: 17px;
+  overflow: auto;
+  margin: 10px;
+}
+
 .subChat {
   display: flex;
   flex-direction: column;
   height: calc(100% - 54px);
   padding: 20px 20px 0;
+  overflow-y: scroll;
+}
+
+.subChat-mobile {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 54px);
+  padding: 5px 5px 0;
   overflow-y: scroll;
 }
 
@@ -36,6 +55,20 @@
   text-align: right;
 }
 
+.from-me-mobile {
+  display: flex;
+  align-items: center;
+  color: rgb(0, 0, 0);
+  margin-left: auto;
+  background: #ffffff;
+  padding: 2px 15px;
+  word-wrap: break-word;
+  font-size: 15px;
+  line-height: 20px;
+  border-radius: 25px;
+  text-align: right;
+}
+
 .from-them {
   background: #108f5e;
   color: rgb(255, 255, 255);
@@ -46,6 +79,20 @@
   word-wrap: break-word;
   font-size: 24px;
   line-height: 24px;
+  border-radius: 25px;
+  text-align: left;
+}
+
+.from-them-mobile {
+  background: #108f5e;
+  color: rgb(255, 255, 255);
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  padding: 2px 15px;
+  word-wrap: break-word;
+  font-size: 15px;
+  line-height: 20px;
   border-radius: 25px;
   text-align: left;
 }

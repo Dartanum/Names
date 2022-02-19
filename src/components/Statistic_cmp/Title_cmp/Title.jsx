@@ -22,17 +22,20 @@ export default class Title extends React.Component {
         newName = "Сбер";
         break;
     }
+    const imageClass = this.props.isPhone ? "logo-header-mobile" : "logo-header";
+    const isPhone = this.props.isPhone;
+
     return (
-      <div className="header_container">
+      <div className={isPhone ? "header_container-mobile" : "header_container"}>
         <div className="info-container">
-          <img src={logo_sber} className="logo-header" />
+          <img src={logo_sber} className={imageClass} />
           <div className="player-name">{newName}</div>
         </div>
         <div className="info-container">
-          <img src={vs} className="logo-header" />
+          <img src={vs} className={imageClass} />
         </div>
         <div className="info-container">
-          <img src={logo_user} className="logo-header" />
+          <img src={logo_user} className={imageClass} />
           <div className="player-name">{this.props.nickname}</div>
         </div>
       </div>
